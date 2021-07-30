@@ -11,7 +11,7 @@
     (grep "^password" /boot/grub/grub.cfg)
 }
 
-@test "1.4.3 Ensure permissions on bootloader config are configured (Scored)" {
+@test "1.4.3 Ensure permissions on bootloader config are configured (Automated)" {
     run bash -c "stat /boot/grub/grub.cfg | grep '^Access: (0400'"
     [ "$status" -eq 0 ]
 }
