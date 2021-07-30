@@ -1,34 +1,9 @@
 #!/bin/bash
-grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read -r user dir
-do
-  if [ ! -d "$dir" ]; then
-    echo "The home directory \"$dir\" of user \"$user\" does not exist."
-  else
-    for file in $dir/.netrc; do
-      if [ ! -h "$file" ] && [ -f "$file" ]; then
-        fileperm="$(ls -ld "$file" | cut -f1 -d" ")"
-        if [ "$(echo "$fileperm" | cut -c5)" != "-" ]; then
-          echo "Group Read set on \"$file\""
-        fi
-        if [ "$(echo "$fileperm" | cut -c6)" != "-" ]; then
-          echo "Group Write set on \"$file\""
-        fi
-        if [ "$(echo "$fileperm" | cut -c7)" != "-" ]; then
-          echo "Group Execute set on \"$file\""
-        fi
-        if [ "$(echo "$fileperm" | cut -c8)" != "-" ]; then
-          echo "Other Read set on \"$file\""
-        fi
-        if [ "$(echo "$fileperm" | cut -c9)" != "-" ]; then
-          echo "Other Write set on \"$file\""
-        fi
-        if
-          [ "$(echo "$fileperm" | cut -c10)" != "-"
-          ]
-        then
-          echo "Other Execute set on \"$file\""
-        fi
-      fi
-    done
+cut -f3 -d":" /etc/passwd | sort -n | uniq -c | while read x ; do
+  [ -z "$x" ] && break
+  set - $x
+  if [ $1 -gt 1 ]; then
+    users=$(awk -F: '($3 == n) { print $1 }' n=$2 /etc/passwd | xargs)
+    echo "Duplicate UID ($2): $users"
   fi
 done

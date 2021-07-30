@@ -1,21 +1,13 @@
 #!/bin/bash
-grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read -r user dir
-do
-  if [ ! -d "$dir" ]; then
-    echo "The home directory ($dir) of user $user does not exist."
-  else
-    dirperm="$(ls -ld "$dir" | cut -f1 -d" ")"
-    if [ "$(echo "$dirperm" | cut -c6)" != "-" ]; then
-      echo "Group Write permission set on the home directory \"$dir\" of user $user"
-    fi
-    if [ "$(echo "$dirperm" | cut -c8)" != "-" ]; then
-      echo "Other Read permission set on the home directory \"$dir\" of user $user"
-    fi
-    if [ "$(echo "$dirperm" | cut -c9)" != "-" ]; then
-      echo "Other Write permission set on the home directory \"$dir\" of user $user"
-    fi
-    if [ "$(echo "$dirperm" | cut -c10)" != "-" ]; then
-      echo "Other Execute permission set on the home directory \"$dir\" of user $user"
+awk -F: '($1!~/(halt|sync|shutdown)/ && $7!~/^(\/usr)?\/sbin\/nologin(\/)?$/ && $7!~/(\/usr)?\/bin\/false(\/)?$/) { print $1 " " $6 }' /etc/passwd | while read -r user dir; do
+  if [ -d "$dir" ]; then
+    file="$dir/.netrc"
+    if [ ! -h "$file" ] && [ -f "$file" ]; then
+      if stat -L -c "%A" "$file" | cut -c4-10 | grep -Eq '[^-]+'; then
+        echo "FAILED: User: \"$user\" file: \"$file\" exists with permissions: \"$(stat -L -c "%a" "$file")\", remove file or excessive permissions"
+      else
+        echo "WARNING: User: \"$user\" file: \"$file\" exists with permissions: \"$(stat -L -c "%a" "$file")\", remove file unless required"
+      fi
     fi
   fi
 done

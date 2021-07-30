@@ -1,11 +1,11 @@
 #!/bin/bash
-grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read -r user dir
-do
-  if [ ! -d "$dir" ]; then
-    echo "The home directory \"$dir\" of user \"$user\" does not exist."
+RPCV="$(sudo -Hiu root env | grep '^PATH' | cut -d= -f2)"
+echo "$RPCV" | grep -q "::" && echo "root's path contains a empty directory (::)"
+echo "$RPCV" | grep -q ":$" && echo "root's path contains a trailing (:)"
+for x in $(echo "$RPCV" | tr ":" " "); do
+  if [ -d "$x" ]; then
+    ls -ldH "$x" | awk '$9 == "." {print "PATH contains current working directory (.)"} $3 != "root" {print $9, "is not owned by root"} substr($1,6,1) != "-" {print $9, "is group writable"} substr($1,9,1) != "-" {print $9, "is world writable"}'
   else
-    if [ ! -h "$dir/.netrc" ] && [ -f "$dir/.netrc" ]; then
-      echo ".netrc file \"$dir/.netrc\" exists"
-    fi
+    echo "$x is not a directory"
   fi
 done

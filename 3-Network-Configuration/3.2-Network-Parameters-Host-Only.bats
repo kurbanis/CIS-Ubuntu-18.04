@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-@test "3.1.1 Ensure packet redirect sending is disabled (Scored)" {
+@test "3.2.1 Ensure packet redirect sending is disabled (Automated)" {
     run bash -c "sysctl net.ipv4.conf.all.send_redirects"
     [ "$status" -eq 0 ]
     [ "$output" = "net.ipv4.conf.all.send_redirects = 0" ]
@@ -29,7 +29,7 @@
     [ $CONF_FILE_CORRECT -eq 1 ]
 }
 
-@test "3.1.2 Ensure IP forwarding is disabled (Scored)" {
+@test "3.2.2 Ensure IP forwarding is disabled (Automated)" {
     run bash -c "sysctl net.ipv4.ip_forward"
     [ "$status" -eq 0 ]
     [ "$output" = "net.ipv4.ip_forward = 0" ]

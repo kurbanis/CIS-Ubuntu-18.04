@@ -1,6 +1,7 @@
 #!/bin/bash
-grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read -r user dir; do
-  if [ ! -d "$dir" ]; then
-    echo "The home directory $dir of user $user does not exist."
+for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+  grep -q -P "^.*?:[^:]*:$i:" /etc/group
+  if [ $? -ne 0 ]; then
+    echo "Group $i is referenced by /etc/passwd but does not exist in /etc/group"
   fi
 done

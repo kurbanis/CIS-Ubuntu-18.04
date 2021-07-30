@@ -1,12 +1,9 @@
 #!/bin/bash
-grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read -r user dir
-do
-  if [ ! -d "$dir" ]; then
-    echo "The home directory \"$dir\" of user $user does not exist."
-  else
-    owner=$(stat -L -c "%U" "$dir")
-    if [ "$owner" != "$user" ]; then
-      echo "The home directory \"$dir\" of user $user is owned by $owner."
+awk -F: '($1!~/(root|halt|sync|shutdown)/ && $7!~/^(\/usr)?\/sbin\/nologin(\/)?$/ && $7!~/(\/usr)?\/bin\/false(\/)?$/) {print $1 " " $6 }' /etc/passwd | while read -r user dir; do
+  if [ -d "$dir" ]; then
+    file="$dir/.forward"
+    if [ ! -h "$file" ] && [ -f "$file" ]; then
+      echo "User: \"$user\" file: \"$file\" exists"
     fi
   fi
 done

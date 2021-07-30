@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-@test "5.3.1 Ensure password creation requirements are configured (Scored)" {
+@test "5.4.1 Ensure password creation requirements are configured (Automated)" {
     local MINLENGTH=$(grep '^\s*minlen\s*' /etc/security/pwquality.conf)
     MINLENGTH=(${MINLENGTH//minlen = / }) # get the number from the string
     local PWQUALITY=$(grep '^\s*minclass\s*' /etc/security/pwquality.conf)
@@ -17,7 +17,7 @@
     fi
 }
 
-@test "5.3.2 Ensure lockout for failed password attempts is configured (Scored)" {
+@test "5.4.2 Ensure lockout for failed password attempts is configured (Automated)" {
     run bash -c "grep \"pam_tally2\" /etc/pam.d/common-auth"
     [ "$status" -eq 0 ]
     [[ "$output" == "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900" ]]
@@ -27,14 +27,14 @@
     [[ "$output" == *"account"*"required"*"pam_tally2.so"* ]]
 }
 
-@test "5.3.3 Ensure password reuse is limited (Scored)" {
+@test "5.4.3 Ensure password reuse is limited (Automated)" {
     local REMEMBER=$(grep -E '^password\s+required\s+pam_pwhistory.so' /etc/pam.d/common-password)
     [[ "$REMEMBER" != "" ]]
     REMEMBER=(${REMEMBER//password required pam_pwhistory.so remember=/ }) # get the number from the string
     [[ "$REMEMBER" -gt 4 ]]
 }
 
-@test "5.3.4 Ensure password hashing algorithm is SHA-512 (Scored)" {
+@test "5.4.4 Ensure password hashing algorithm is SHA-512 (Automated)" {
     run bash -c "grep -E '^\s*password\s+(\S+\s+)+pam_unix\.so\s+(\S+\s+)*sha512\s*(\S+\s*)*(\s+#.*)?$' /etc/pam.d/common-password"
     [ "$status" -eq 0 ]
     [[ "$output" == "password"*"[success=1 default=ignore]"*"sha512"* ]]

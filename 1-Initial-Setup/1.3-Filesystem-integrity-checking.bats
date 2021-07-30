@@ -1,11 +1,15 @@
 #!/usr/bin/env bats
 
-@test "1.4.1 Ensure AIDE is installed (Scored)" {
-    run bash -c "dpkg -s aide"
+@test "1.3.1 Ensure AIDE is installed (Automated)" {
+    run bash -c "dpkg -s aide | grep -E '(Status:|not installed)"
     [ "$status" -eq 0 ]
+    [[ "$output" = "Status: install ok installed" ]]
+    run bash -c "dpkg -s aide-common | grep -E '(Status:|not installed)"
+    [ "$status" -eq 0 ]
+    [[ "$output" = "Status: install ok installed" ]]
 }
 
-@test "1.4.2 Ensure filesystem integrity is regularly checked (Scored)" {
+@test "1.3.2 Ensure filesystem integrity is regularly checked (Automated)" {
     local check_enabled
     local check_status
 
